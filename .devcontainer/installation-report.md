@@ -19,7 +19,7 @@
 | Claude Code | ✅ Success | Installed via npm |
 | UV | ✅ Success | Installed via official installer |
 | Claude Monitor | ✅ Success | Installed via UV tool |
-| Claude Flow | ✅ Success | Installed via npm (alpha) |
+| Claude Flow | ✅ Success | Installed via npm (alpha), ruflo@3.42.4. Requires Node 22 LTS — Node 24.19+ crashes on `init` (better-sqlite3/RemoveEnvironmentCleanupHook assertion, see PR #1); pinned in devcontainer.json's node feature. |
 | RUV Swarm | ✅ Success | Installed via npm |
 | CCUsage | ✅ Success | Installed via npm |
 
@@ -49,3 +49,4 @@ brew install tmux
 ---
 
 *Report generated at: Fri Sep 18 12:53:38 UTC 2026*
+*Claude Flow note updated Sep 18 2026 after diagnosing a Node 24 / better-sqlite3 crash on `claude-flow init` — see [PR #1](https://github.com/damjant88/agentic-fleet-test/pull/1).*
