@@ -37,6 +37,29 @@ record_status() {
     INSTALL_NOTES["$tool"]="$note"
 }
 
+# Function to work around a packaging bug in @claude-flow/cli (used by ruflo):
+# its published npm package only ships "dist", so .claude/helpers/statusline.cjs
+# (shipped by the outer ruflo package) is missing from the nested @claude-flow/cli
+# package where the CLI looks for it, causing `ruflo init` to fail with
+# "could not locate .claude/helpers/statusline.cjs relative to @claude-flow/cli".
+fix_claude_flow_statusline_helper() {
+    local pkg_name="$1"
+    local global_root
+    global_root=$(npm root -g 2>/dev/null) || return 0
+    local outer_pkg="$global_root/$pkg_name"
+    local helper_src="$outer_pkg/.claude/helpers/statusline.cjs"
+    [ -f "$helper_src" ] || return 0
+
+    find "$outer_pkg" -type d -path "*@claude-flow/cli" 2>/dev/null | while read -r cli_dir; do
+        local dest="$cli_dir/.claude/helpers/statusline.cjs"
+        if [ ! -f "$dest" ]; then
+            mkdir -p "$(dirname "$dest")"
+            cp "$helper_src" "$dest"
+            echo "  ✓ Patched missing statusline.cjs into $cli_dir/.claude/helpers/"
+        fi
+    done
+}
+
 # Function to try installing a package
 try_install() {
     local package="$1"
@@ -325,14 +348,17 @@ if command_exists npm; then
         FLOW_VERSION=$(npm list -g ruflo 2>/dev/null | grep "ruflo@" | grep -oE '@[0-9a-z.-]+' || echo 'unknown')
         record_status "ruflo" "✅ Already Installed" "Version: $FLOW_VERSION"
         echo "ruflo is already installed"
+        fix_claude_flow_statusline_helper "ruflo"
     else
         echo "Installing ruflo@latest via npm..."
         if npm install -g ruflo@latest 2>/dev/null; then
             record_status "ruflo" "✅ Success" "Installed via npm (alpha)"
+            fix_claude_flow_statusline_helper "ruflo"
         elif command_exists sudo; then
             echo "Retrying ruflo installation with sudo..."
             if sudo npm install -g ruflo@latest 2>/dev/null; then
                 record_status "ruflo" "✅ Success" "Installed via npm with sudo (alpha)"
+                fix_claude_flow_statusline_helper "ruflo"
             else
                 record_status "ruflo" "❌ Failed" "npm installation failed"
             fi

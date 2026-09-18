@@ -58,6 +58,27 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to work around a packaging bug in @claude-flow/cli: its published
+# npm package only ships "dist", so .claude/helpers/statusline.cjs (shipped by
+# the outer claude-flow package) is missing from the nested @claude-flow/cli
+# package where the CLI looks for it, causing `claude-flow init` to fail with
+# "could not locate .claude/helpers/statusline.cjs relative to @claude-flow/cli".
+fix_claude_flow_statusline_helper() {
+    local global_root
+    global_root=$(npm root -g 2>/dev/null) || return 0
+    local outer_pkg="$global_root/claude-flow"
+    local helper_src="$outer_pkg/.claude/helpers/statusline.cjs"
+    [ -f "$helper_src" ] || return 0
+
+    find "$outer_pkg" -type d -path "*@claude-flow/cli" 2>/dev/null | while read -r cli_dir; do
+        local dest="$cli_dir/.claude/helpers/statusline.cjs"
+        if [ ! -f "$dest" ]; then
+            mkdir -p "$(dirname "$dest")"
+            cp "$helper_src" "$dest"
+        fi
+    done
+}
+
 # Function to find next available tmux session name
 find_tmux_session() {
     for name in "${PHONETIC_NAMES[@]}"; do
@@ -126,6 +147,10 @@ if ! command_exists claude-flow; then
         error_exit "Failed to install claude-flow. Please install it manually: npm install -g claude-flow@alpha"
     fi
 fi
+
+# Patch a known @claude-flow/cli packaging bug regardless of whether claude-flow
+# was just installed above or already present from a prior run.
+fix_claude_flow_statusline_helper
 
 print_message "$GREEN" "✅ All prerequisites are installed"
 
