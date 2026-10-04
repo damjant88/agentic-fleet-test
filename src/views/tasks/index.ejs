@@ -1,0 +1,50 @@
+<%- include('../partials/head', { title: 'Tasks' }) %>
+<%- include('../partials/nav', { userEmail: userEmail, currentPage: 'tasks' }) %>
+<main class="container">
+  <div class="page-header">
+    <h1>Tasks</h1>
+    <a class="button" href="/tasks/new">+ New task</a>
+  </div>
+
+  <div class="filter-bar">
+    <a href="/tasks?filter=all" class="<%= filter === 'all' ? 'active' : '' %>">All</a>
+    <a href="/tasks?filter=active" class="<%= filter === 'active' ? 'active' : '' %>">Active</a>
+    <a href="/tasks?filter=completed" class="<%= filter === 'completed' ? 'active' : '' %>">Completed</a>
+  </div>
+
+  <% if (tasks.length === 0) { %>
+    <p class="empty-state">No tasks yet.</p>
+  <% } else { %>
+  <ul class="item-list">
+    <% tasks.forEach(function(task) {
+         var isOverdue = task.due_at && !task.completed && task.due_at < now;
+         var isDueToday = task.due_at && !task.completed && !isOverdue &&
+           task.due_at.slice(0, 10) === now.slice(0, 10);
+    %>
+    <li class="item-card <%= task.completed ? 'completed' : '' %>">
+      <form method="POST" action="/tasks/<%= task.id %>/toggle" class="inline-form">
+        <button type="submit" class="checkbox-button" aria-label="Toggle complete">
+          <%= task.completed ? '☑' : '☐' %>
+        </button>
+      </form>
+      <div class="item-body">
+        <a href="/tasks/<%= task.id %>/edit" class="item-title"><%= task.title %></a>
+        <% if (task.due_at) { %>
+          <span class="badge <%= isOverdue ? 'badge-overdue' : (isDueToday ? 'badge-due-today' : '') %>">
+            <%= isOverdue ? 'Overdue' : (isDueToday ? 'Due today' : 'Due') %>:
+            <%= new Date(task.due_at).toLocaleString() %>
+          </span>
+        <% } %>
+      </div>
+      <div class="item-actions">
+        <a href="/tasks/<%= task.id %>/edit">Edit</a>
+        <form method="POST" action="/tasks/<%= task.id %>/delete" class="inline-form" onsubmit="return confirm('Delete this task?');">
+          <button type="submit" class="link-button">Delete</button>
+        </form>
+      </div>
+    </li>
+    <% }); %>
+  </ul>
+  <% } %>
+</main>
+<%- include('../partials/foot') %>

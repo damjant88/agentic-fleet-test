@@ -1,0 +1,18 @@
+<header class="app-header">
+  <div class="app-header-inner">
+    <a class="brand" href="/tasks">Task Organizer</a>
+    <% if (typeof userEmail !== 'undefined' && userEmail) { %>
+    <nav class="main-nav">
+      <a href="/tasks" class="<%= currentPage === 'tasks' ? 'active' : '' %>">Tasks</a>
+      <a href="/notes" class="<%= currentPage === 'notes' ? 'active' : '' %>">Notes</a>
+      <a href="/reminders" class="<%= currentPage === 'reminders' ? 'active' : '' %>">Reminders</a>
+    </nav>
+    <div class="nav-user">
+      <span class="user-email"><%= userEmail %></span>
+      <form method="POST" action="/logout" class="inline-form">
+        <button type="submit" class="link-button">Log out</button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+</header>

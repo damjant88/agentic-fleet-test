@@ -1,0 +1,18 @@
+<%- include('../partials/head', { title: 'Sign up' }) %>
+<%- include('../partials/nav', { userEmail: null, currentPage: '' }) %>
+<main class="container narrow">
+  <h1>Sign up</h1>
+  <% if (error) { %><p class="error" role="alert"><%= error %></p><% } %>
+  <form method="POST" action="/signup" class="stack-form">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" value="<%= email %>" required autocomplete="email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+    <p class="hint">At least 8 characters.</p>
+
+    <button type="submit">Create account</button>
+  </form>
+  <p>Already have an account? <a href="/login">Log in</a></p>
+</main>
+<%- include('../partials/foot') %>

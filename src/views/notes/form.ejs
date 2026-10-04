@@ -1,0 +1,17 @@
+<%- include('../partials/head', { title: note && note.id ? 'Edit note' : 'New note' }) %>
+<%- include('../partials/nav', { userEmail: userEmail, currentPage: 'notes' }) %>
+<main class="container narrow">
+  <h1><%= note && note.id ? 'Edit note' : 'New note' %></h1>
+  <% if (error) { %><p class="error" role="alert"><%= error %></p><% } %>
+  <form method="POST" action="<%= note && note.id ? '/notes/' + note.id : '/notes' %>" class="stack-form">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" value="<%= note ? note.title : '' %>" required maxlength="200">
+
+    <label for="body">Body</label>
+    <textarea id="body" name="body" rows="10" maxlength="20000"><%= note ? note.body : '' %></textarea>
+
+    <button type="submit"><%= note && note.id ? 'Save changes' : 'Create note' %></button>
+  </form>
+  <p><a href="/notes">Back to notes</a></p>
+</main>
+<%- include('../partials/foot') %>

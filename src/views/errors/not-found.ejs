@@ -1,0 +1,8 @@
+<%- include('../partials/head', { title: 'Not found' }) %>
+<%- include('../partials/nav', { userEmail: typeof userEmail !== 'undefined' ? userEmail : null, currentPage: '' }) %>
+<main class="container narrow">
+  <h1>Not found</h1>
+  <p>That item doesn't exist or you don't have access to it.</p>
+  <p><a href="/tasks">Back to tasks</a></p>
+</main>
+<%- include('../partials/foot') %>

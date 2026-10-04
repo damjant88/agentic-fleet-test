@@ -1,0 +1,27 @@
+<%- include('../partials/head', { title: task && task.id ? 'Edit task' : 'New task' }) %>
+<%- include('../partials/nav', { userEmail: userEmail, currentPage: 'tasks' }) %>
+<main class="container narrow">
+  <h1><%= task && task.id ? 'Edit task' : 'New task' %></h1>
+  <% if (error) { %><p class="error" role="alert"><%= error %></p><% } %>
+  <form method="POST" action="<%= task && task.id ? '/tasks/' + task.id : '/tasks' %>" class="stack-form">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" value="<%= task ? task.title : '' %>" required maxlength="200">
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="4" maxlength="5000"><%= task ? task.description : '' %></textarea>
+
+    <label for="due_at">Due date/time (optional)</label>
+    <%
+      var dueAtValue = '';
+      if (task && task.due_at) {
+        var d = new Date(task.due_at);
+        dueAtValue = isNaN(d.getTime()) ? task.due_at : d.toISOString().slice(0, 16);
+      }
+    %>
+    <input type="datetime-local" id="due_at" name="due_at" value="<%= dueAtValue %>">
+
+    <button type="submit"><%= task && task.id ? 'Save changes' : 'Create task' %></button>
+  </form>
+  <p><a href="/tasks">Back to tasks</a></p>
+</main>
+<%- include('../partials/foot') %>
